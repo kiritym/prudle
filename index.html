@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Prudle</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- <link rel="stylesheet" href="/style.css" -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.1/css/bootstrap-colorpicker.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.1/js/bootstrap-colorpicker.min.js"></script>
+  </head>
+
+  <body>
+  <div class="container">
+    <div class="jumbotron col-md-7">
+      <h4>Prudle!</h4>
+      <p>Mock your HTTP responses to test your RESTful API</p>
+      <!-- <form class="form-horizontal"> -->
+        <div class="form-group col-md-12">
+          <div id="error-dup"></div>
+        </div>
+        <div class="form-group col-md-12">
+          <label for="usr">Related API Path:</label>
+          <input type="text" name="api_path" class="form-control" id="api_path" value="/">
+        </div>
+        <div class="form-group col-md-6">
+          <label for="sel1">Content Type:</label>
+          <select class="form-control" name="content_type" id="ct">
+            <option>application/json</option>
+            <option>application/xml</option>
+            <option>text/html</option>
+            <option>application/x-www-form-urlencoded</option>
+            <option>multipart/form-data</option>
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="sel1">Character Set:</label>
+          <select class="form-control" name="char_set" id="cs">
+            <option>UTF-8</option>
+            <option>UTF-16</option>
+            <option>ISO-8859-1</option>
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="sel1">Status Code:</label>
+          <select class="form-control" name="status_code" id="sc">
+            {{range $key, $value := .}}
+             <option value="{{ $key }}">{{ $key }} - {{ $value }}</option>
+           {{end}}
+          </select>
+        </div>
+        <div class="form-group col-md-12">
+          <label for="comment">Body(Your Custom Response):</label>
+          <textarea class="form-control" rows="12" name="payload" id="payload"></textarea>
+        </div>
+        <div class="form-group col-md-8 pull-right">
+           <button type="submit" id="btn-submit" class="btn-primary btn-lg">Generate Your Link!</button>
+         </div>
+      <!-- </form> -->
+    </div>
+    <div class="jumbotron col-md-4 pull-right" id="result" hidden>
+      <div class="form-group col-md-12">
+        <h2>Your API List</h2>
+        <ul class="list-group"></ul>
+        <div id="result"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+   $('#btn-submit').click(function () {
+     var data_p = {
+       api_path: $("#api_path").val(),
+       content_type: $("#ct").val(),
+       status_code: $("#sc").val(),
+       char_set: $("#cs").val(),
+       payload: $("#payload").val(),
+     };
+       $.ajax({
+         url: "http://localhost:8888/mock",
+         type: "POST",
+         data : data_p,
+         success : function(res) {
+           if (res == "duplicate"){
+             $("#error-dup").val("duplicate")
+           }else{
+             $("#result").show()
+             $('#result div ul').append('<li class="list-group-item"><a href="'+res+'"target="_blank">'+res+'</a></li>');
+           }
+         },
+         error: function(err) {
+           console.log(err);
+         },
+       });
+    });
+   </script>
+ </body>
+</html>
