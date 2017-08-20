@@ -47,8 +47,6 @@ func find(db *bolt.DB, apiPath string) (HttpReq, error) {
 	return hr, db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("HttpBucket"))
 		u := b.Get([]byte(apiPath))
-		fmt.Println(apiPath)
-		fmt.Println(u)
 		if err := json.Unmarshal(u, &hr); err != nil {
 			//panic(err)
 			fmt.Println("error")
