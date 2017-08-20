@@ -20,13 +20,12 @@
 
   <body>
   <div class="container">
-    <div class="jumbotron col-md-7">
+    <div class="well">
       <h4>Prudle!</h4>
       <p>Mock your HTTP responses to test your RESTful API</p>
+    </div>
+    <div class="jumbotron col-md-6">
       <!-- <form class="form-horizontal"> -->
-        <div class="form-group col-md-12">
-          <div id="error-dup"></div>
-        </div>
         <div class="form-group col-md-12">
           <label for="usr">Related API Path:</label>
           <input type="text" name="api_path" class="form-control" id="api_path" value="/">
@@ -66,8 +65,8 @@
          </div>
       <!-- </form> -->
     </div>
-    <div class="jumbotron col-md-4 pull-right" id="result" hidden>
-      <div class="form-group col-md-12">
+    <div class="jumbotron col-md-5 pull-right" id="result" hidden>
+      <div class="form-group">
         <h2>Your API List</h2>
         <ul class="list-group"></ul>
         <div id="result"></div>
