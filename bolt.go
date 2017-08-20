@@ -21,6 +21,13 @@ func connection() *bolt.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
+	db.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucket([]byte("HttpBucket"))
+		if err != nil {
+			return fmt.Errorf("create bucket: %s", err)
+		}
+		return nil
+	})
 
 	return db
 }

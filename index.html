@@ -27,6 +27,7 @@
     <div class="jumbotron col-md-6">
       <!-- <form class="form-horizontal"> -->
         <div class="form-group col-md-12">
+          <div style="color:red" id="error-dup"></div>
           <label for="usr">Related API Path:</label>
           <input type="text" name="api_path" class="form-control" id="api_path" value="/">
         </div>
@@ -87,9 +88,10 @@
          type: "POST",
          data : data_p,
          success : function(res) {
-           if (res == "duplicate"){
-             $("#error-dup").val("duplicate")
+           if (res === "duplicate"){
+             $("#error-dup").text("It's a duplicate endpoint!")
            }else{
+             $("#error-dup").text("");
              $("#result").show()
              $('#result div ul').append('<li class="list-group-item"><a href="'+res+'"target="_blank">'+res+'</a></li>');
            }

@@ -36,11 +36,11 @@ func (hf *HandlerFactory) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		db := connection()
 		defer db.Close()
-		// req, _ := find(db, httpReq.ApiPath)
-		// if req.ApiPath != "" {
-		// 	w.Write([]byte("duplicate"))
-		// 	return
-		// }
+		req, _ := find(db, httpReq.ApiPath)
+		if req.ApiPath != "" {
+			w.Write([]byte("duplicate"))
+			return
+		}
 		err1 := httpReq.save(db)
 		if err1 != nil {
 			w.Write([]byte("error!"))
