@@ -27,7 +27,7 @@
     <div class="jumbotron col-md-6">
       <!-- <form class="form-horizontal"> -->
         <div class="form-group col-md-12">
-          <div style="color:red" id="error-dup"></div>
+          <div style="color:green" id="error-dup"></div>
           <label for="usr">Related API Path:</label>
           <input type="text" name="api_path" class="form-control" id="api_path" value="/">
         </div>
@@ -52,7 +52,7 @@
         <div class="form-group col-md-6">
           <label for="sel1">Status Code:</label>
           <select class="form-control" name="status_code" id="sc">
-            {{range $key, $value := .}}
+            {{range $key, $value := .Status}}
              <option value="{{ $key }}">{{ $key }} - {{ $value }}</option>
            {{end}}
           </select>
@@ -66,15 +66,39 @@
          </div>
       <!-- </form> -->
     </div>
+    {{if .ApiList}}
+    <div class="jumbotron col-md-5 pull-right" id="result">
+
+      <div class="form-group">
+        <h2>Your API List</h2>
+        <ul class="list-group">
+          {{range $index, $element := .ApiList}}
+          <li class="list-group-item"><a href="{{ $element }}"target="_blank">{{ $element }}</a></li>
+          {{end}}
+        </ul>
+      </div>
+    </div>
+    {{else}}
     <div class="jumbotron col-md-5 pull-right" id="result" hidden>
       <div class="form-group">
         <h2>Your API List</h2>
         <ul class="list-group"></ul>
-        <div id="result"></div>
       </div>
     </div>
+    {{end}}
   </div>
   <script>
+  var showBorder = function(path){
+    $("#result div ul li").filter(function() {
+         return $(this).text() === path;
+     }).css({"border": "1px solid green", "margin-bottom":"0px"});
+  }
+
+  var removeBorder = function(path){
+    $("#result div ul li").each(function() {
+         return $(this).text() === path;
+     }).css({"border": "1px solid #ddd", "margin-bottom":"-1px"});
+  }
    $('#btn-submit').click(function () {
      var data_p = {
        api_path: $("#api_path").val(),
@@ -88,12 +112,15 @@
          type: "POST",
          data : data_p,
          success : function(res) {
-           if (res === "duplicate"){
-             $("#error-dup").text("It's a duplicate endpoint!")
+           var result = JSON.parse(res);
+           removeBorder(result.Path)
+           if (result.Duplicate === true){
+             $("#error-dup").text("It's a duplicate endpoint, but updated with latest inputs!")
+             showBorder(result.Path)
            }else{
              $("#error-dup").text("");
              $("#result").show()
-             $('#result div ul').append('<li class="list-group-item"><a href="'+res+'"target="_blank">'+res+'</a></li>');
+             $('#result div ul').append('<li class="list-group-item"><a href="'+result.Path+'"target="_blank">'+result.Path+'</a></li>');
            }
          },
          error: function(err) {

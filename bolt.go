@@ -61,3 +61,18 @@ func find(db *bolt.DB, apiPath string) (HttpReq, error) {
 		return nil
 	})
 }
+
+func findAll(db *bolt.DB) ([]string, error) {
+	hrList := make([]string, 0)
+	return hrList, db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("HttpBucket"))
+		fmt.Println("hi")
+		b.ForEach(func(k, v []byte) error {
+			fmt.Printf("key=%s\n", string(k))
+			fmt.Printf("value=%s\n", string(v))
+			hrList = append(hrList, string(k))
+			return nil
+		})
+		return nil
+	})
+}

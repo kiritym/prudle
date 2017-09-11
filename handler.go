@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -38,7 +39,20 @@ func (hf *HandlerFactory) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 		req, _ := find(db, httpReq.ApiPath)
 		if req.ApiPath != "" {
-			w.Write([]byte("duplicate"))
+			result := struct {
+				Duplicate bool
+				Path      string
+			}{
+				true,
+				req.ApiPath,
+			}
+			data, _ := json.Marshal(result)
+			w.Write(data)
+			err1 := httpReq.save(db)
+			if err1 != nil {
+				w.Write([]byte("error!"))
+				return
+			}
 			return
 		}
 		err1 := httpReq.save(db)
@@ -51,11 +65,30 @@ func (hf *HandlerFactory) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		handler := APIHandlerStr{hf.handler_path}
 		handle := fmt.Sprintf("%s", hf.handler_path)
 		http.Handle(handle, &handler)
-		w.Write([]byte(r.FormValue("api_path")))
+		result := struct {
+			Duplicate bool
+			Path      string
+		}{
+			false,
+			r.FormValue("api_path"),
+		}
+		data, _ := json.Marshal(result)
+		w.Write(data)
 	}
 }
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
+	db := connection()
+	defer db.Close()
+	a, _ := findAll(db)
+
+	data := struct {
+		Status  map[int]string
+		ApiList []string
+	}{
+		HttpStatusCodes,
+		a,
+	}
 	t, _ := template.ParseFiles("index.html")
-	t.Execute(w, HttpStatus)
+	t.Execute(w, data)
 }

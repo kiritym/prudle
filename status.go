@@ -1,6 +1,6 @@
 package main
 
-var HttpStatus = map[int]string{
+var HttpStatusCodes = map[int]string{
 	200: "StatusOK",
 	300: "StatusMultipleChoices",
 	301: "StatusMovedPermanently",
