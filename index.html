@@ -99,34 +99,55 @@
          return $(this).text() === path;
      }).css({"border": "1px solid #ddd", "margin-bottom":"-1px"});
   }
+
+  var showPathError = function(){
+    $("#api_path").css({"border": "1px solid red", "margin-bottom":"0px"});
+    $("#error-dup").css({"color":"red"});
+    $("#error-dup").text("Give some valid path other than the root path!")
+  }
+
+  var clearError = function() {
+    $("#api_path").css({"border": "1px solid #ddd", "margin-bottom":"-1px"});
+    $("#error-dup").css({"color":"green"});
+    if($("#api_path").val().charAt(0) !== "/"){
+      $("#api_path").val("/"+$("#api_path").val());
+    }
+  }
+
+
    $('#btn-submit').click(function () {
-     var data_p = {
-       api_path: $("#api_path").val(),
-       content_type: $("#ct").val(),
-       status_code: $("#sc").val(),
-       char_set: $("#cs").val(),
-       payload: $("#payload").val(),
-     };
-       $.ajax({
-         url: "/mock",
-         type: "POST",
-         data : data_p,
-         success : function(res) {
-           var result = JSON.parse(res);
-           removeBorder(result.Path)
-           if (result.Duplicate === true){
-             $("#error-dup").text("It's a duplicate endpoint, but updated with latest inputs!")
-             showBorder(result.Path)
-           }else{
-             $("#error-dup").text("");
-             $("#result").show()
-             $('#result div ul').append('<li class="list-group-item"><a href="'+result.Path+'"target="_blank">'+result.Path+'</a></li>');
-           }
-         },
-         error: function(err) {
-           console.log(err);
-         },
-       });
+     if ($("#api_path").val() === "/" || $("#api_path").val() === "") {
+       showPathError();
+     }else{
+       clearError()
+       var data_p = {
+         api_path: $("#api_path").val(),
+         content_type: $("#ct").val(),
+         status_code: $("#sc").val(),
+         char_set: $("#cs").val(),
+         payload: $("#payload").val(),
+       };
+         $.ajax({
+           url: "/mock",
+           type: "POST",
+           data : data_p,
+           success : function(res) {
+             var result = JSON.parse(res);
+             removeBorder(result.Path)
+             if (result.Duplicate === true){
+               $("#error-dup").text("It's a duplicate endpoint, but updated with latest inputs!")
+               showBorder(result.Path)
+             }else{
+               $("#error-dup").text("");
+               $("#result").show()
+               $('#result div ul').append('<li class="list-group-item"><a href="'+result.Path+'"target="_blank">'+result.Path+'</a></li>');
+             }
+           },
+           error: function(err) {
+             console.log(err);
+           },
+         });
+     }
     });
    </script>
  </body>

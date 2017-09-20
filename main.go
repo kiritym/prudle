@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 var (
@@ -23,33 +20,32 @@ func isError(err error) bool {
 	return (err != nil)
 }
 
-func clearDBBeforeTerminates() {
-	var err = os.Remove("http.db")
-	if isError(err) {
-		return
+func registerOldHandlers() {
+	db := connection()
+	defer db.Close()
+	a, _ := findAll(db)
+
+	for i := range a {
+		handler := APIHandlerStr{a[i]}
+		handle := fmt.Sprintf("%s", a[i])
+		http.Handle(handle, &handler)
 	}
 }
+
 func main() {
 	flag.Parse()
 	addr := fmt.Sprintf("%s:%d", *host, *port)
-	fmt.Println(addr)
 
 	factory := HandlerFactory{""}
 	http.Handle("/mock", &factory)
 	http.HandleFunc("/", RootHandler)
-	//clear the DB before program ends
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-sigs
-		clearDBBeforeTerminates()
-		os.Exit(0)
-	}()
 
+	go registerOldHandlers()
 	log.Println("Starting web server at", addr)
 	err := http.ListenAndServe(addr, nil)
 
 	if err != nil {
 		log.Fatal("ERROR:", err)
 	}
+
 }

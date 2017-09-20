@@ -13,10 +13,10 @@ type APIHandlerStr struct {
 	path string
 }
 
-func (hf *APIHandlerStr) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (af *APIHandlerStr) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	db := connection()
 	defer db.Close()
-	req, _ := find(db, r.URL.Path)
+	req, _ := find(db, af.path)
 	w.Header().Set("Content-Type", req.ContentType+";charset="+req.CharSet)
 	w.WriteHeader(strToInt(req.StatusCode))
 	w.Write([]byte(req.Payload))
@@ -78,9 +78,17 @@ func (hf *HandlerFactory) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func RootHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
 	db := connection()
 	defer db.Close()
-	a, _ := findAll(db)
+	a, err := findAll(db)
+	if err != nil {
+		fmt.Println("ERROR fetching data: ", err)
+	}
 
 	data := struct {
 		Status  map[int]string

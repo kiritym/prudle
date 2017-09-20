@@ -22,7 +22,7 @@ func connection() *bolt.DB {
 		log.Fatal(err)
 	}
 	db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucket([]byte("HttpBucket"))
+		_, err := tx.CreateBucketIfNotExists([]byte("HttpBucket"))
 		if err != nil {
 			return fmt.Errorf("create bucket: %s", err)
 		}
@@ -54,9 +54,13 @@ func find(db *bolt.DB, apiPath string) (HttpReq, error) {
 	return hr, db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("HttpBucket"))
 		u := b.Get([]byte(apiPath))
-		if err := json.Unmarshal(u, &hr); err != nil {
-			//panic(err)
-			fmt.Println("error")
+		//fmt.Printf("The answer is: %s\n", u)
+		if u != nil {
+			if err := json.Unmarshal(u, &hr); err != nil {
+				//panic(err)
+				fmt.Println("error in unmarshalling..", err)
+				fmt.Println(hr)
+			}
 		}
 		return nil
 	})
@@ -66,10 +70,9 @@ func findAll(db *bolt.DB) ([]string, error) {
 	hrList := make([]string, 0)
 	return hrList, db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("HttpBucket"))
-		fmt.Println("hi")
 		b.ForEach(func(k, v []byte) error {
-			fmt.Printf("key=%s\n", string(k))
-			fmt.Printf("value=%s\n", string(v))
+			// fmt.Printf("key=%s\n", string(k))
+			// fmt.Printf("value=%s\n", string(v))
 			hrList = append(hrList, string(k))
 			return nil
 		})
