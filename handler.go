@@ -17,6 +17,7 @@ func (af *APIHandlerStr) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	db := connection()
 	defer db.Close()
 	req, _ := find(db, af.path)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", req.ContentType+";charset="+req.CharSet)
 	w.WriteHeader(strToInt(req.StatusCode))
 	w.Write([]byte(req.Payload))
